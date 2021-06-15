@@ -45,14 +45,14 @@ thanks = ["Thanks Pepper","Thank you pepper","thanks pepper","thank you pepper",
 
 thanks_responses = ["Anytime chief :)","Anytime :)","Don't mention it!","Always here to help!","You're most welcome 🤗","🙏 ","Happy to help out!"]
 
-
+#Messsage on startup
 @client.event
 async def on_ready():
     await client.change_presence(activity=discord.Activity(
-        type=discord.ActivityType.listening, name="Fayaz"))
+        type=discord.ActivityType.listening, name="Fayaz"))#Status of the bot
     print('We have logged in as {0.user}'.format(client))
 
-
+#Messages
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -61,16 +61,16 @@ async def on_message(message):
     if message.content.startswith('hello'):
         await message.channel.send(
             'Hi there!{0.author.mention}'.format(message))
-
+#reaction
     if "nice" in message.content:
         await message.add_reaction("👍")
-
+#commands only i can use
     valid_users = ["fintasticツ#4854"]
     if str(message.author) in valid_users:
         if message.content.startswith('Right Pepper?'):
             await message.channel.send(
                 'Your wish is my command {0.author.mention}'.format(message))
-
+#listen and response from arrays
     if any(word in message.content for word in greetings):
         await message.channel.send(random.choice(greetings_responses))
 
@@ -84,7 +84,7 @@ async def on_message(message):
             await message.channel.send(
                 'Please watch ur  language {0.author.mention}'.format(message))
 
-    #Counts the no. of members in my server
+#Counts the no. of members in my server
     id = client.get_guild(804156381842243584)
     valid_users = ["fintasticツ#4854"]
     if str(message.author) in valid_users:
@@ -92,7 +92,7 @@ async def on_message(message):
             await message.channel.send(
                 f"""No. of members = {id.member_count}""")
 
-
+#Welcome message to anyone who joins my server
 @client.event
 async def on_member_join(member):
     for channel in member.server.channels:
@@ -101,6 +101,6 @@ async def on_member_join(member):
                 f""" Welcome to the A-Team, {member.mention}! Please choose any character you'd like to have as a role. It can be any hero or villain. We hope you enjoy your stay!"""
             )
 
-
+#keeps the bot alive by hosting it from Replit servers
 keep_alive()
 client.run(os.environ['TOKEN'])
