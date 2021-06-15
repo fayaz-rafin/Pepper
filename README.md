@@ -1,5 +1,5 @@
-# Pepper
-Pepper - Discord Bot 
+# Pepper - Discord Bot 
+ 
 Pepper is a discrod bot that comforts you with something inspirational or somethign heartwarming when you're feeling down. 
 ## Features
 1. It recognizes keywords like `"sad"`, `"depressed"`,`"unhappy"` etc. and responds with a random text from its files to cheer you up.
