@@ -7,9 +7,10 @@ import aiohttp
 import json
 import pprint
 from keep_alive import keep_alive
-
+from discord_slash import SlashCommand
 
 client = commands.Bot(description="test", command_prefix="!")
+slash = SlashCommand(client, sync_commands=True)
 
 
 
@@ -28,7 +29,7 @@ async def on_message(message):
     #Anti-Chandu
     blacklist = ["Edgy_N_Void#4321"]
     chandu_list = ["chandu","Chandu","Chand","chand","🪒","🧑‍🦲","👨‍🦲"]
-    dn_list=["dn","deez","deez nuts","DEEZ NUTS","DN","Deez","nuts"]
+    dn_list=["deez","deez nuts","DEEZ NUTS","Deez","DEEZ"]
     if str(message.author) in blacklist and any(word in message.content for word in chandu_list):
       await message.author.kick(reason="He mentioned the forbidden reference again!")
       await message.channel.send("https://media.giphy.com/media/R8blTbKhRtJoQ/giphy-downsized-large.gif")
@@ -76,7 +77,7 @@ async def on_message(message):
         
 
     #Commands i can use
-    valid_users = ["fintasticツ#4854","Josy#5108"]
+    valid_users = ["fintasticツ#4854"]
     if str(message.author) in valid_users:
       if message.content.startswith('Right Pepper?'):
         await message.channel.send(
@@ -90,9 +91,24 @@ async def on_message(message):
             await message.channel.send(
                 f"""No. of members = {id.member_count}""")
 
+@client.event
+async def on_command_error(ctx,error):
+  if isinstance(error, commands.MissingRequiredArgument):
+    embed = discord.Embed(title="Command Error", description = "Please pass in all required arguments.")
+    await ctx.send(embed=embed)
+  if isinstance(error, commands.CommandOnCooldown):
+    cooldown = discord.Embed(title="Command on cooldown",description = f"This command is on cooldown. Please try again after {round(error.retry_after, 1)} seconds.")
+    await ctx.send(embed=cooldown)
+  else:
+    embed =discord.Embed( description = "Oh no! Something went wrong while running the command!") 
+  
+@slash.slash(name="hello",description = "Say hello back")
+async def hello(ctx):
+  await ctx.send('Hello!')
+
 
 #Bot Commands
-@client.command()
+@slash.slash(name="meme",description = "Sends a meme")
 async def meme(ctx):
     async with aiohttp.ClientSession() as cs:
         async with cs.get("https://www.reddit.com/r/memes.json?sort=hot") as r:
@@ -121,6 +137,93 @@ async def on_message_edit(message_before, message_after):
                     inline=True)
     channel = client.get_channel(923814880379822100)
     await channel.send(channel, embed=embed)
+
+@slash.slash(name="rps",description = "Plays rock, paper, scissors. Make sure to use lowercase when playing.")
+async def play(ctx, message):
+    user_choice = message.lower()
+    choices = ["rock", "paper", "scissors"]
+    bot_choice = random.choice(choices)
+    if user_choice not in choices:
+        await ctx.send("Please enter a valid choice")
+    else:
+        if bot_choice == "rock" and user_choice == "paper":
+            embedVar = discord.Embed(
+                title="You win!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            user_wins = True
+
+        elif bot_choice == "rock" and user_choice == "scissors":
+            embedVar = discord.Embed(
+                title="Pepper wins!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            bot_wins = False
+
+        elif bot_choice == "paper" and user_choice == "rock":
+            embedVar = discord.Embed(
+                title="Pepper wins!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            bot_wins = False
+
+        elif bot_choice == "paper" and user_choice == "scissors":
+            embedVar = discord.Embed(
+                title="You win!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            user_wins = True
+
+        elif bot_choice == "scissors" and user_choice == "rock":
+            embedVar = discord.Embed(
+                title="You win!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            user_wins = True
+
+        elif bot_choice == "scissors" and user_choice == "paper":
+            embedVar = discord.Embed(
+                title="Pepper wins!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+            bot_wins = False
+
+        else:
+            embedVar = discord.Embed(
+                title="It's a draw!",
+                description=
+                f"**Pepper's choice:** {bot_choice}\n **your choice:** {user_choice}.",
+                color=discord.Color.red())
+            await ctx.send(embed=embedVar)
+  
+#Poll command: Make a poll for users to vote by reacting.
+@client.command()
+@commands.cooldown(1,60,commands.BucketType.channel)
+async def poll(ctx,*,message):
+
+  icon = ctx.author.avatar_url
+  embed = discord.Embed(title=" Poll:",description=f"{message}", color=discord.Color.red())
+  embed.set_footer(text=f"Poll made by {ctx.author}", icon_url = icon,)
+  embed.timestamp = ctx.message.created_at
+  await ctx.message.delete()
+  msg = await ctx.channel.send(embed=embed)
+  await msg.add_reaction('⬆')
+  await msg.add_reaction('⬇')
+  
+
+
 
 sad_words = [
     "sad", "unhappy", "depressed", "anxiety", "anxious", "pessimistic",
